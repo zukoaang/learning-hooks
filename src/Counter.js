@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
 
-export default () => {
-  const [ count, setCount ] = useState(0)
+const useFetch = (url, count) => {
   const [ person, setPerson ] = useState(null)
   const [ loading, setLoading ] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      const res = await fetch(url)
+      const data = await res.json()
+      const [ item ] =  data.results
+      setPerson(item)
+      setLoading(false)
+    }
+    fetchData()
+  }, [count])
+
+  return { person, loading }
+}
+
+export default () => {
+  const [ count, setCount ] = useState(0)
+  const { person, loading } = useFetch('https://api.randomuser.me/', count)
 
   const increment = () => setCount( count + 1 )
 
   useEffect(() => {
     document.title = `The count is ${ count }`
-    async function fetchData() {
-      setLoading(true)
-      const res = await fetch('https://api.randomuser.me/')
-      const data = await res.json()
-      const [ item ] =  data.results
-      console.log(item)
-      setPerson(item)
-      setLoading(false)
-    }
-    fetchData()
   }, [count])
 
   return (
